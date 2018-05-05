@@ -1,0 +1,22 @@
+ARG S6_ARCH
+FROM oznu/s6-node:8.11.1-debian-${S6_ARCH:-amd64}
+
+RUN apt-get update \
+  && apt-get install -y git python make g++ libnss-mdns avahi-discover libavahi-compat-libdnssd-dev \
+  && apt-get clean \
+  && rm -rf /tmp/* /var/lib/apt/lists/* /var/tmp/* \
+  && chmod 4755 /bin/ping \
+  && mkdir /homebridge
+
+ENV HOMEBRIDGE_VERSION=0.4.38
+RUN npm install -g --unsafe-perm homebridge@${HOMEBRIDGE_VERSION}
+
+ENV CONFIG_UI_VERSION=3.5.3
+RUN npm install -g --unsafe-perm homebridge-config-ui-x@${CONFIG_UI_VERSION}
+
+WORKDIR /homebridge
+VOLUME /homebridge
+
+ENV NO_UPDATE_NOTIFIER=1
+
+COPY root /
